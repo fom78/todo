@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
         tareas = JSON.parse(localStorage.getItem('tareas'))
     }
     pintarTareas()
+    console.log(tareas);
 })
 
 listaTareas.addEventListener('click', (e) => {btnAccion(e)})
