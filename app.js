@@ -5,7 +5,7 @@ const taskTitle = document.getElementById("task-title");
 const template = document.getElementById("template").content;
 const fragment = document.createDocumentFragment();
 const errorMsg = document.getElementById("error");
-const formulario =document.getElementById("form-add-task");
+const taskForm =document.getElementById("form-add-task");
 
 document.addEventListener("DOMContentLoaded", () => {
    errorMsg.textContent = "";
@@ -23,7 +23,7 @@ const loginCheck = (user) => {
   }
 };
 
-formulario.addEventListener("submit", (e) => {
+taskForm.addEventListener("submit", (e) => {
   e.preventDefault();
   addTask(e);
 });
@@ -108,6 +108,7 @@ const setupTasks = (data) => {
 
     data.forEach((doc) => {
       const task = doc.data();
+      // console.log(task);
       const clone = template.cloneNode(true);
       clone.querySelector("p").textContent = task.texto;
       if (task.estado) {
@@ -150,6 +151,7 @@ const addTask = (e) => {
         texto: text,
         estado: false,
         userId: auth.currentUser.uid,
+        date: Date.now()
       })
       .then(() => {
         console.log("Document successfully written!");
@@ -158,7 +160,7 @@ const addTask = (e) => {
         console.error("Error writing document: ", error);
       });
     getTasks(auth.currentUser.uid);
-    formulario.reset();
+    taskForm.reset();
     e.target.querySelector("input").focus();
   } else {
     errorMsg.textContent =
@@ -198,6 +200,7 @@ const deleteTask = (id) => {
 const getTasks = (userId) => {
   fs.collection("tasks")
     .where('userId', '==', userId)
+    .orderBy('date', 'desc')
     .get()
     .then((snapshot) => {
       setupTasks(snapshot.docs);
