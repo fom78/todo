@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Firebase Auth Example</title>
+  <title>Tareas</title>
   <!-- BOOSTRAP CSS -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
     integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
@@ -18,21 +18,21 @@
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom">
     <div class="container">
 
-      <a class="navbar-brand" href="#">Tareas</a>
+      <a class="navbar-brand" id="task-title" href="#">Tareas</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
         aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
+      <div class="collapse navbar-collapse text-right" id="navbarNav">
         <ul class="navbar-nav ml-auto">
           <li class="nav-item logged-out" style="display: none;">
-            <a class="nav-link" href="#" data-toggle="modal" data-target="#signinModal">Signin</a>
+            <a class="nav-link" href="#" data-toggle="modal" data-target="#signinModal">Ingresar</a>
           </li>
           <li class="nav-item logged-out" style="display: none;">
-            <a class="nav-link" href="#" data-toggle="modal" data-target="#signupModal">Signup</a>
+            <a class="nav-link" href="#" data-toggle="modal" data-target="#signupModal">Registrarse</a>
           </li>
           <li class="nav-item logged-in" style="display: none;">
-            <a class="nav-link" href="#" id="logout">Logout</a>
+            <a class="nav-link" href="#" id="logout">Cerrar Sesion</a>
           </li>
         </ul>
       </div>
@@ -40,14 +40,18 @@
   </nav>
 
   <div class="container p-4">
-    <form id="formulario">
+    <form id="form-add-task">
         <input type="text" placeholder="Ingrese tarea" class="form-control my-2">
         <button class="btn btn-primary btn-block" type="submit">Agregar</button>
+        <div class="p-2">
+          <span class="badge bg-danger" id="error"></span>
+        </div>
+        
     </form>
 
     <hr>
 
-    <div id="lista-tareas" class="mt-2">
+    <div id="task-list" class="mt-2">
         <div class="alert alert-dark">
             Sin tareas pendientes 😍
         </div>
@@ -70,7 +74,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h3>SignUp</h3>
+          <h3>Registrarse</h3>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -78,12 +82,12 @@
         <div class="modal-body">
           <form id="signup-form">
             <div class="form-group">
-              <input type="text" id="signup-email" class="form-control" placeholder="Title" required>
+              <input type="text" id="signup-email" class="form-control" placeholder="correo electronico" required>
             </div>
             <div class="form-group">
               <input type="password" id="signup-password" class="form-control" placeholder="Password" required>
             </div>
-            <button type="submit" class="btn btn-primary">Save changes</button>
+            <button type="submit" class="btn btn-primary">Guardar</button>
           </form>
         </div>
       </div>
@@ -95,7 +99,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h3>SignIn</h3>
+          <h3>Ingresar</h3>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -103,14 +107,14 @@
         <div class="modal-body">
           <form id="login-form">
             <div class="form-group">
-              <input type="text" id="login-email" class="form-control" placeholder="Title" required>
+              <input type="text" id="login-email" class="form-control" placeholder="correo electronico" required>
             </div>
             <div class="form-group">
               <input type="password" id="login-password" class="form-control" placeholder="Password" required>
             </div>
-            <button type="submit" class="btn btn-secondary btn-block">Login</button>
+            <button type="submit" class="btn btn-secondary btn-block">Ingresar</button>
             <button type="button" class="btn btn-info btn-block" id="googleLogin">Login with Google</button>
-            <button type="button" class="btn btn-primary btn-block" id="facebookLogin">Login with Facebook</button>
+            <!-- <button type="button" class="btn btn-primary btn-block" id="facebookLogin">Login with Facebook</button> -->
           </form>
         </div>
       </div>
