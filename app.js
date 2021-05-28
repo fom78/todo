@@ -5,26 +5,51 @@ const taskTitle = document.getElementById("task-title");
 const template = document.getElementById("template").content;
 const fragment = document.createDocumentFragment();
 const errorMsg = document.getElementById("error");
-const taskForm =document.getElementById("form-add-task");
+const taskForm = document.getElementById("form-add-task");
+const inputTask = document.getElementById("input-task");
+const spinner = document.getElementById("spinner");
+const inputSignUpEmail = document.getElementById("signup-email");
+const dangerSignUpEmailMsg = document.getElementById("danger-signup-email");
+const dangerSignUpPasswordMsg = document.getElementById(
+  "danger-signup-password"
+);
+const dangerLoginEmailMsg = document.getElementById("danger-login-email");
+const dangerLoginPasswordMsg = document.getElementById("danger-login-password");
 
 document.addEventListener("DOMContentLoaded", () => {
-   errorMsg.textContent = "";
+  errorMsg.textContent = "";
 });
 
+const isLoading = (is) => {
+  if (is) {
+    //spinner.textContent = "Loading ... ";
+    spinner.classList.remove("invisible");
+    taskList.classList.add("invisible");
+    taskForm.classList.add("invisible");
+  } else {
+    //spinner.textContent = "";
+    spinner.classList.add("invisible");
+    taskList.classList.remove("invisible");
+    taskForm.classList.remove("invisible");
+  }
+};
 const loginCheck = (user) => {
   if (user) {
     loggedInLinks.forEach((link) => (link.style.display = "block"));
     loggedOutLinks.forEach((link) => (link.style.display = "none"));
-    taskTitle.innerText=user.displayName? `Tarea para ${user.displayName}`:`Tarea para ${user.email}`
+    taskTitle.innerText = user.displayName
+      ? `Tarea para ${user.displayName}`
+      : `Tarea para ${user.email}`;
   } else {
     loggedInLinks.forEach((link) => (link.style.display = "none"));
     loggedOutLinks.forEach((link) => (link.style.display = "block"));
-    taskTitle.innerText='Tareas'
+    taskTitle.innerText = "Tareas";
   }
 };
 
 taskForm.addEventListener("submit", (e) => {
   e.preventDefault();
+
   addTask(e);
 });
 
@@ -33,22 +58,32 @@ taskList.addEventListener("click", (e) => {
   btnAction(e);
 });
 const btnAction = (e) => {
-  const id= e.target.dataset.id
-  const userId= e.target.dataset.userId
-
+  const id = e.target.dataset.id;
+  const userId = e.target.dataset.userId;
+  const spinner = e.target.parentNode.parentNode.querySelector(".spinner-task");
+  const buttons = e.target.parentNode;
+  
+  const putSpinner=()=>{
+    spinner.classList.remove("invisible");
+    buttons.classList.add("invisible");
+  }
+ 
   if (e.target.classList.contains("fa-check-circle")) {
+    putSpinner()
     editTask(id, true).then(() => {
       getTasks(userId);
     });
   }
 
   if (e.target.classList.contains("fa-minus-circle")) {
+    putSpinner()
     deleteTask(id).then(() => {
       getTasks(userId);
     });
   }
 
   if (e.target.classList.contains("fa-undo-alt")) {
+    putSpinner()
     editTask(id, false).then(() => {
       getTasks(userId);
     });
@@ -62,16 +97,32 @@ signUpForm.addEventListener("submit", (e) => {
   e.preventDefault();
   const email = signUpForm["signup-email"].value;
   const password = signUpForm["signup-password"].value;
-
-  // Authenticate the User
-  auth
-    .createUserWithEmailAndPassword(email, password)
-    .then((userCredential) => {
-      // clear the form
-      signUpForm.reset();
-      // close the modal
-      $("#signupModal").modal("hide");
-    });
+  if (
+    validateInputs({
+      expresion: expresiones.email,
+      input: email,
+      error: dangerSignUpEmailMsg,
+    }) &&
+    validateInputs({
+      expresion: expresiones.password,
+      input: password,
+      error: dangerSignUpPasswordMsg,
+    })
+  ) {
+    // Authenticate the User
+    auth
+      .createUserWithEmailAndPassword(email, password)
+      .then((userCredential) => {
+        // clear the form
+        signUpForm.reset();
+        // close the modal
+        $("#signupModal").modal("hide");
+      })
+      .catch((err) => {
+        console.log(err.code);
+        handleError({ code: err.code });
+      });
+  }
 });
 
 // Logout
@@ -91,14 +142,31 @@ signInForm.addEventListener("submit", (e) => {
   e.preventDefault();
   const email = signInForm["login-email"].value;
   const password = signInForm["login-password"].value;
-
-  // Authenticate the User
-  auth.signInWithEmailAndPassword(email, password).then((userCredential) => {
-    // clear the form
-    signInForm.reset();
-    // close the modal
-    $("#signinModal").modal("hide");
-  });
+  if (
+    validateInputs({
+      expresion: expresiones.email,
+      input: email,
+      error: dangerLoginEmailMsg,
+    }) &&
+    validateInputs({
+      expresion: expresiones.password,
+      input: password,
+      error: dangerLoginPasswordMsg,
+    })
+  ) {
+    // Authenticate the User
+    auth
+      .signInWithEmailAndPassword(email, password)
+      .then((userCredential) => {
+        // clear the form
+        signInForm.reset();
+        // close the modal
+        $("#signinModal").modal("hide");
+      })
+      .catch((err) => {
+        handleError({ code: err.code });
+      });
+  }
 });
 
 // Tasks
@@ -138,23 +206,26 @@ const setupTasks = (data) => {
 
 // Add Task
 const addTask = (e) => {
-  const text = e.target.querySelector("input").value;
-
+  const textToValidate = e.target.querySelector("input").value;
+  const text = transformToValidateTaskText(textToValidate);
   if (text.trim() === "") {
-    console.log("está vacio");
+    errorMsg.textContent =
+      "La tarea no puede estar vacia, ingrese algo que desea realizar en algun momento.";
     return;
   }
   if (auth.currentUser) {
+    isLoading(true);
     fs.collection("tasks")
       .doc()
       .set({
         texto: text,
         estado: false,
         userId: auth.currentUser.uid,
-        date: Date.now()
+        date: Date.now(),
       })
       .then(() => {
         console.log("Document successfully written!");
+        isLoading(false);
       })
       .catch((error) => {
         console.error("Error writing document: ", error);
@@ -162,9 +233,10 @@ const addTask = (e) => {
     getTasks(auth.currentUser.uid);
     taskForm.reset();
     e.target.querySelector("input").focus();
+    warningMsg.textContent = "";
   } else {
     errorMsg.textContent =
-      "Error, debes estar logueado para poder agregar tus tareas.";
+      "Error, debes estar logueado para poder agregar tus tareas. Por favor Registrate o si ya tenes cuenta ingresa.";
   }
 };
 // Edit Task
@@ -199,8 +271,8 @@ const deleteTask = (id) => {
 // Get Tasks
 const getTasks = (userId) => {
   fs.collection("tasks")
-    .where('userId', '==', userId)
-    .orderBy('date', 'desc')
+    .where("userId", "==", userId)
+    .orderBy("date", "desc")
     .get()
     .then((snapshot) => {
       setupTasks(snapshot.docs);
@@ -210,9 +282,9 @@ const getTasks = (userId) => {
 // list for auth state changes
 auth.onAuthStateChanged((user) => {
   if (user) {
-    getTasks(user.uid)
+    getTasks(user.uid);
     loginCheck(user);
-        errorMsg.textContent = ""
+    errorMsg.textContent = "";
   } else {
     setupTasks([]);
     loginCheck(user);
@@ -239,7 +311,7 @@ googleButton.addEventListener("click", (e) => {
 });
 
 // Login with Facebook
-const facebookButton = document.querySelector("#facebookLogin");
+//const facebookButton = document.querySelector("#facebookLogin");
 
 // facebookButton.addEventListener("click", (e) => {
 //   e.preventDefault();
@@ -257,3 +329,12 @@ const facebookButton = document.querySelector("#facebookLogin");
 //       console.log(err);
 //     });
 // });
+
+//Validate
+
+inputTask.addEventListener("keyup", (e) => {
+  validateTask({ expresion: expresiones.task, input: e.target.value });
+});
+inputTask.addEventListener("blur", (e) => {
+  validateTask({ expresion: expresiones.task, input: e.target.value });
+});

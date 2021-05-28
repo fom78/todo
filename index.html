@@ -40,11 +40,17 @@
   </nav>
 
   <div class="container p-4">
+    <div class="d-flex justify-content-center text-light invisible" id="spinner">
+      <div class="spinner-border" role="status">
+        <span class="sr-only">Loading...</span>
+      </div>
+    </div>
     <form id="form-add-task">
-        <input type="text" placeholder="Ingrese tarea" class="form-control my-2">
+        <input type="text" placeholder="Ingrese tarea" class="form-control my-2" id="input-task">
         <button class="btn btn-primary btn-block" type="submit">Agregar</button>
         <div class="p-2">
           <span class="badge bg-danger" id="error"></span>
+          <span class="badge bg-warning" id="warning"></span>
         </div>
         
     </form>
@@ -61,7 +67,10 @@
   <template id="template">
     <div class="alert alert-warning d-flex justify-content-between align-items-center">
         <p class="m-0">Tarea #1</p>
-        <h3 class="m-0">
+        <div class="spinner-border text-primary ml-auto invisible spinner-task" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+        <h3 class="buttons m-0">
             <i class="fas fa-check-circle text-success" role="button"></i>
             <i class="fas fa-minus-circle text-danger" role="button"></i>
         </h3>
@@ -83,9 +92,12 @@
           <form id="signup-form">
             <div class="form-group">
               <input type="text" id="signup-email" class="form-control" placeholder="correo electronico" required>
+              <span class="badge bg-danger invisible" id="danger-signup-email">Ingrese un email valido por favor.-</span>
+
             </div>
             <div class="form-group">
               <input type="password" id="signup-password" class="form-control" placeholder="Password" required>
+              <span class="badge bg-danger invisible" id="danger-signup-password">Ingrese un password valido por favor (entre 6 y 12 digitos).-</span>
             </div>
             <button type="submit" class="btn btn-primary">Guardar</button>
           </form>
@@ -108,9 +120,11 @@
           <form id="login-form">
             <div class="form-group">
               <input type="text" id="login-email" class="form-control" placeholder="correo electronico" required>
+              <span class="badge bg-danger invisible" id="danger-login-email">Ingrese un email valido por favor.-</span>
             </div>
             <div class="form-group">
               <input type="password" id="login-password" class="form-control" placeholder="Password" required>
+              <span class="badge bg-danger invisible" id="danger-login-password">Ingrese un password valido por favor (entre 6 y 12 digitos).-</span>
             </div>
             <button type="submit" class="btn btn-secondary btn-block">Ingresar</button>
             <button type="button" class="btn btn-info btn-block" id="googleLogin">Login with Google</button>
@@ -159,7 +173,8 @@
     const auth = firebase.auth();
     const fs = firebase.firestore();
   </script>
-
+  
+  <script src="validate.js"></script>
   <script src="app.js"></script>
 </body>
 
